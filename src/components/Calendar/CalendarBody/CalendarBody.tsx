@@ -4,6 +4,8 @@ import c from '../Calendar.module.scss'
 import { splitArray } from '../../../helpers/splitArray';
 import cn from 'classnames'
 import { Popup } from '../../Popup/Popup';
+import { Cell } from './Cell/Cell';
+import { extendArray } from '../../../helpers/extendArray';
 
 type Props = {
     selectedDate: Date;
@@ -38,6 +40,12 @@ export const CalendarBody: FC<Props> = props => {
     const days: string[] = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
     const cells: Array<Date> = eachDayOfInterval({ start: monthStart, end: monthEnd })
     const splitedArray = splitArray<Date>(cells, 7)
+    const extendedArray = extendArray(splitedArray)
+
+    extendedArray[0][0].tasks.push({
+        time: '10',
+        title: 'yoyoyoyo'
+    })
 
     return (
         <div className={c['calendar-body']}>
@@ -46,7 +54,7 @@ export const CalendarBody: FC<Props> = props => {
                 currentCell={currentCell}
                 setPopup={setPopup}
 
-            /> }
+            />}
             <div className={c.days}>
                 <ul>
                     {
@@ -59,18 +67,21 @@ export const CalendarBody: FC<Props> = props => {
 
             <div className={c.cells}>
                 {
-                    splitedArray.map((array, i) => {
+                    extendedArray.map((array, i) => {
                         return (
                             <ul key={i}>
                                 {
-                                    array.map((date, j) => {
+                                    array.map((item, j) => {
                                         return (
-                                            <li onClick={() => {
-                                                setPopup(true)
-                                                setCurrentCell(date)
-                                            }} key={date.toISOString()}>
-                                                <span className={getClassDate(date)}>{date.getDate()}</span>
-                                            </li>
+                                            <Cell
+                                                key={item.date.toISOString()}
+                                                getClassDate={getClassDate}
+                                                date={item.date}
+                                                setPopup={setPopup}
+                                                setCurrentCell={setCurrentCell}
+                                                tasks={item.tasks}
+                                            >
+                                            </Cell>
                                         )
                                     })
                                 }

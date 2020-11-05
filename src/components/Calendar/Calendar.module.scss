@@ -73,8 +73,8 @@
 
         .cells {
             margin-top: 10px;
-            ul {
-                li {
+            >ul {
+                >li {
                     border: 1px solid lightgrey;
                     height: 150px;
                     margin: 5px;
@@ -85,6 +85,20 @@
                         top: 5px;
                         &.today{
                             color: red !important;
+                        }
+                    }
+                    .task-nav {
+                        display: flex;
+                        flex-direction: column;
+                        > li {
+                            display: block;
+                            width: 100%;
+                            padding: 5px;
+                            box-sizing: border-box;
+                            margin-top: 4px;
+                            text-align: left;
+                            background: antiquewhite;
+                            border-radius: 2px;
                         }
                     }
                 }

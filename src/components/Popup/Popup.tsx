@@ -1,11 +1,12 @@
 import React, { Dispatch, FC, SetStateAction, useState } from 'react'
 import c from './Popup.module.scss'
 import { CurrentCell } from '../Calendar/CalendarBody/CalendarBody';
+import { Task } from '../Calendar/Calendar';
 
 type Props = {
     currentCell: CurrentCell;
     setCurrentCell: Dispatch<SetStateAction<CurrentCell>>;
-    setPopup: Dispatch<SetStateAction<boolean>>
+    setPopup: Dispatch<SetStateAction<boolean>>;
 }
 
 export const Popup: FC<Props> = props => {

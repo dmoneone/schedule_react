@@ -9,3 +9,4 @@ export function splitArray<T>(array: T[], n: number): Array<Array<T>> {
 
     return output
 }
+
