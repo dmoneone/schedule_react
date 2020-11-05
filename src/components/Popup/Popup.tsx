@@ -7,6 +7,7 @@ type Props = {
     currentCell: CurrentCell;
     setCurrentCell: Dispatch<SetStateAction<CurrentCell>>;
     setPopup: Dispatch<SetStateAction<boolean>>;
+    findCellAndSetSchedule: any;
 }
 
 export const Popup: FC<Props> = props => {
@@ -25,6 +26,7 @@ export const Popup: FC<Props> = props => {
                     <button onClick={() => {
                         addTask()
                         props.setPopup(false)
+                        props.findCellAndSetSchedule(props.currentCell, newTask)
                     }}>add task</button>
                     <button onClick={() => {
                         props.setCurrentCell(null)

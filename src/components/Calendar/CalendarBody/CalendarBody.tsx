@@ -6,6 +6,7 @@ import cn from 'classnames'
 import { Popup } from '../../Popup/Popup';
 import { Cell } from './Cell/Cell';
 import { extendArray } from '../../../helpers/extendArray';
+import { Task } from '../Calendar';
 
 type Props = {
     selectedDate: Date;
@@ -14,10 +15,15 @@ type Props = {
 
 export type CurrentCell = Date | null
 
+type Schedule = {
+    date: Date;
+    tasks: Task[];
+}[][]
+
 export const CalendarBody: FC<Props> = props => {
     const [isPopupOpen, setPopup] = useState(false)
     const [currentCell, setCurrentCell] = useState<CurrentCell>(null)
-
+    
     const dateFormat = "MMMM yyyy dddd";
 
     const getClassDate = (date: Date) => {
@@ -42,10 +48,43 @@ export const CalendarBody: FC<Props> = props => {
     const splitedArray = splitArray<Date>(cells, 7)
     const extendedArray = extendArray(splitedArray)
 
-    extendedArray[0][0].tasks.push({
-        time: '10',
-        title: 'yoyoyoyo'
-    })
+    const [schedule, setSchedule] = useState<Schedule>(extendedArray)
+
+    extendedArray[0][0].tasks.push(
+        {
+            time: '10',
+            title: 'yoyoyoyo'
+        },
+        {
+            time: '10',
+            title: 'dmoneone'
+        }
+    )
+
+    const findCellAndSetSchedule = (date: Date, title: string) => {
+        let indexes = []
+        if (schedule) {
+            for (let i = 0; i < schedule?.length; i++) {
+                console.log(schedule[i], 'i')
+                let ind = schedule[i].findIndex(item => {
+                    return format(item.date, dateFormat) === format(date, dateFormat) 
+                })
+                if(ind !== -1) {
+                    indexes.push(i, ind)
+                    break
+                }
+            }
+        }
+
+        console.log(indexes)
+        schedule[indexes[0]][indexes[1]].tasks.push({
+            time: 'x',
+            title
+        })
+
+        setSchedule(schedule)
+    }
+
 
     return (
         <div className={c['calendar-body']}>
@@ -53,6 +92,7 @@ export const CalendarBody: FC<Props> = props => {
                 setCurrentCell={setCurrentCell}
                 currentCell={currentCell}
                 setPopup={setPopup}
+                findCellAndSetSchedule={findCellAndSetSchedule}
 
             />}
             <div className={c.days}>
@@ -67,7 +107,7 @@ export const CalendarBody: FC<Props> = props => {
 
             <div className={c.cells}>
                 {
-                    extendedArray.map((array, i) => {
+                    schedule.map((array, i) => {
                         return (
                             <ul key={i}>
                                 {
@@ -88,6 +128,7 @@ export const CalendarBody: FC<Props> = props => {
                             </ul>
                         )
                     })
+                    
                 }
             </div>
         </div>
