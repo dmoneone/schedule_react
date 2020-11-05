@@ -1,0 +1,96 @@
+@import "src/fonts.scss";
+
+@mixin padding {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+@mixin default_btn {
+    box-sizing: border-box;
+    outline: none;
+    border: 0;
+    background: transparent;
+    padding: 5px;
+    cursor: pointer;
+    transition: all ease 0.2s;
+}
+
+.calendar {
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: Roboto;
+
+    &-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 50px;
+        .title {
+            font-size: 30px;
+        }
+        .btn-panel {
+            margin-top: 30px;
+            .btn-prev, .btn-next, .btn-current {
+                @include default_btn;
+                img {
+                    width: 20px;
+                }
+                span {
+                    font-size: 15px;
+                }
+            }
+        }
+    }
+
+    &-body {
+        display: block;
+        margin-top: 50px;
+
+        .days,
+        .cells {
+            ul {
+                display: flex;
+                li {
+                    flex-basis: calc(100% / 7);
+                    display: block;
+                    text-align: center;
+                    @include padding;
+                }
+            }
+        }
+
+        .days {
+            ul {
+                border: 1px solid lightgrey;
+                li {
+                    border-right: 1px solid lightgrey;
+                    &:last-child {
+                        border-right: 0;
+                    }
+                }
+            }
+        }
+
+        .cells {
+            margin-top: 10px;
+            ul {
+                li {
+                    border: 1px solid lightgrey;
+                    height: 150px;
+                    margin: 5px;
+                    position: relative;
+                    span.date {
+                        position: absolute;
+                        right: 5px;
+                        top: 5px;
+                        &.today{
+                            color: red !important;
+                        }
+                    }
+                }
+            }
+        }
+
+        .cells {}
+    }
+}

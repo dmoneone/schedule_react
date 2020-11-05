@@ -1,0 +1,62 @@
+@import "src/fonts.scss";
+
+.popup-wrap {
+    font-family: Roboto;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    z-index: 500;
+    background: rgba(0, 0, 0, 0.5);
+
+    .popup {
+        font-family: Roboto;
+        max-width: 400px;
+        display: block;
+        margin: 300px auto;
+        background: #fff;
+        padding: 25px;
+        box-sizing: border-box;
+        box-shadow: 5px 5px 16px 5px rgba(0, 0, 0, 0.28);
+
+
+        span,
+        input {
+            display: block;
+        }
+
+        span {
+            font-size: 23px;
+        }
+
+        input {
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+            outline: none;
+            border: 1px solid lightgrey;
+        }
+
+        .btn-panel {
+            margin-top: 30px;
+            display: block;
+
+            button {
+                box-sizing: border-box;
+                outline: none;
+                border: 1px solid grey;
+                background: transparent;
+                padding: 5px;
+                cursor: pointer;
+                transition: all ease 0.2s;
+                margin: 2px;
+
+                &:hover {
+                    box-shadow: 1px 5px 15px 1px rgba(0, 0, 0, 0.19);
+                }
+            }
+        }
+    }
+}
