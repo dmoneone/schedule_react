@@ -1,5 +1,5 @@
-import React, { FC, useState } from 'react'
-import { startOfMonth, endOfMonth, getDaysInMonth, eachDayOfInterval, format } from "date-fns";
+import React, { Dispatch, FC, SetStateAction, useState } from 'react'
+import { startOfMonth, endOfMonth, eachDayOfInterval, format } from "date-fns";
 import c from '../Calendar.module.scss'
 import { splitArray } from '../../../helpers/splitArray';
 import cn from 'classnames'
@@ -11,6 +11,7 @@ import { Task } from '../Calendar';
 type Props = {
     selectedDate: Date;
     currentDate: Date;
+    disableButton: Dispatch<SetStateAction<boolean>>;
 }
 
 export type CurrentCell = Date | null
@@ -18,12 +19,13 @@ export type CurrentCell = Date | null
 type Schedule = {
     date: Date;
     tasks: Task[];
-}[][]
+}[][] | null
 
 export const CalendarBody: FC<Props> = props => {
     const [isPopupOpen, setPopup] = useState(false)
     const [currentCell, setCurrentCell] = useState<CurrentCell>(null)
-    
+    const [schedule, setSchedule] = useState<Schedule>(null)
+
     const dateFormat = "MMMM yyyy dddd";
 
     const getClassDate = (date: Date) => {
@@ -48,11 +50,9 @@ export const CalendarBody: FC<Props> = props => {
     const splitedArray = splitArray<Date>(cells, 7)
     const extendedArray = extendArray(splitedArray)
 
-    const [schedule, setSchedule] = useState<Schedule>(extendedArray)
-
     extendedArray[0][0].tasks.push(
         {
-            time: '10',
+            time: '10am - 12pm',
             title: 'yoyoyoyo'
         },
         {
@@ -61,30 +61,64 @@ export const CalendarBody: FC<Props> = props => {
         }
     )
 
-    const findCellAndSetSchedule = (date: Date, title: string) => {
+    const findAndSetCell = (extendedArray: {
+        date: Date;
+        tasks: Task[];
+    }[][], date: Date, title: string, time: string) => {
+
         let indexes = []
-        if (schedule) {
-            for (let i = 0; i < schedule?.length; i++) {
-                console.log(schedule[i], 'i')
-                let ind = schedule[i].findIndex(item => {
-                    return format(item.date, dateFormat) === format(date, dateFormat) 
-                })
-                if(ind !== -1) {
-                    indexes.push(i, ind)
-                    break
-                }
+        for (let i = 0; i < extendedArray?.length; i++) {
+            let ind = extendedArray[i].findIndex(item => {
+                return format(item.date, dateFormat) === format(date, dateFormat)
+            })
+            if (ind !== -1) {
+                indexes.push(i, ind)
+                break
             }
         }
 
-        console.log(indexes)
-        schedule[indexes[0]][indexes[1]].tasks.push({
-            time: 'x',
-            title
+        extendedArray && extendedArray[indexes[0]][indexes[1]].tasks.push({
+            time,
+            title,
         })
 
-        setSchedule(schedule)
+        setSchedule(extendedArray)
     }
 
+    const findCellAndSetSchedule = (date: Date, title: string, time: string) => {
+        if (!schedule) {
+            findAndSetCell(extendedArray, date, title, time)
+        } else {
+            findAndSetCell(schedule, date, title, time)
+        }
+    }
+
+    const renderCells = (schedule: {
+        date: Date;
+        tasks: Task[];
+    }[][]) => {
+        return schedule.map((array, i) => {
+            return (
+                <ul key={i}>
+                    {
+                        array.map((item, j) => {
+                            return (
+                                <Cell
+                                    key={item.date.toISOString()}
+                                    getClassDate={getClassDate}
+                                    date={item.date}
+                                    setPopup={setPopup}
+                                    setCurrentCell={setCurrentCell}
+                                    tasks={item.tasks}
+                                >
+                                </Cell>
+                            )
+                        })
+                    }
+                </ul>
+            )
+        })
+    }
 
     return (
         <div className={c['calendar-body']}>
@@ -107,28 +141,10 @@ export const CalendarBody: FC<Props> = props => {
 
             <div className={c.cells}>
                 {
-                    schedule.map((array, i) => {
-                        return (
-                            <ul key={i}>
-                                {
-                                    array.map((item, j) => {
-                                        return (
-                                            <Cell
-                                                key={item.date.toISOString()}
-                                                getClassDate={getClassDate}
-                                                date={item.date}
-                                                setPopup={setPopup}
-                                                setCurrentCell={setCurrentCell}
-                                                tasks={item.tasks}
-                                            >
-                                            </Cell>
-                                        )
-                                    })
-                                }
-                            </ul>
-                        )
-                    })
-                    
+                    schedule && renderCells(schedule)
+                }
+                {
+                    !schedule && renderCells(extendedArray)
                 }
             </div>
         </div>

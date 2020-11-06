@@ -8,6 +8,7 @@ type Props = {
     selectDate: Dispatch<SetStateAction<Date>>;
     selectedDate: Date;
     currentDate: Date;
+    isButtonDisabled: boolean;
 }
 
 type PrevNext = 'prev' | 'next'
@@ -34,13 +35,13 @@ export const CalendarHeader: FC<Props> = props => {
         <div className={c['calendar-header']}>
             <span className={c.title}>{format(props.selectedDate, dateFormat)}</span>
             <div className={c['btn-panel']}>
-                <button className={c['btn-prev']} onClick={() => prevNextMonth('prev')}>
+                <button disabled={props.isButtonDisabled} className={c['btn-prev']} onClick={() => prevNextMonth('prev')}>
                     <img src={iconLeft} alt="left" />
                 </button>
-                <button className={c['btn-next']} onClick={() => prevNextMonth('next')}>
+                <button disabled={props.isButtonDisabled} className={c['btn-next']} onClick={() => prevNextMonth('next')}>
                     <img src={iconRight} alt="right" />
                 </button>
-                <button className={c['btn-current']} onClick={setCurrentMonth}><span>Today</span></button>
+                <button disabled={props.isButtonDisabled} className={c['btn-current']} onClick={setCurrentMonth}><span>Today</span></button>
             </div>
         </div>
     )

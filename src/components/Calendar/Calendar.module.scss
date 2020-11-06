@@ -16,7 +16,7 @@
 }
 
 .calendar {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     font-family: Roboto;
 
@@ -51,7 +51,7 @@
             ul {
                 display: flex;
                 li {
-                    flex-basis: calc(100% / 7);
+                    flex-basis: calc((100% / 7));
                     display: block;
                     text-align: center;
                     @include padding;
@@ -76,8 +76,9 @@
             >ul {
                 >li {
                     border: 1px solid lightgrey;
-                    height: 150px;
-                    margin: 5px;
+                    height: 200px;
+                    margin: 2px;
+                    overflow: auto;
                     position: relative;
                     span.date {
                         position: absolute;
@@ -90,15 +91,25 @@
                     .task-nav {
                         display: flex;
                         flex-direction: column;
+                        margin-top: 10px;
                         > li {
+                            font-family: Roboto;
                             display: block;
                             width: 100%;
                             padding: 5px;
                             box-sizing: border-box;
                             margin-top: 4px;
                             text-align: left;
-                            background: antiquewhite;
+                            background: #777596;
+                            color: #fff;
                             border-radius: 2px;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                            .time {
+                                display: block;
+                                font-size: 12px;
+                                margin: 3px;
+                            }
                         }
                     }
                 }

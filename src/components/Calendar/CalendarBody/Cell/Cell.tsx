@@ -20,13 +20,18 @@ export const Cell: FC<Props> = props => {
             }}>
                 <span className={props.getClassDate(props.date)}>{props.date.getDate()}</span>
 
-                { props.tasks?.length ? <ul className={c['task-nav']}>
+                {(props.date && props.tasks?.length) ? <ul className={c['task-nav']}>
                     {
                         props.tasks.map((item, i) => {
-                            return <li key={i}>{item.title}</li>
+                            return (
+                                <li key={i}>
+                                    <span className={c.time}>{item.time}</span>
+                                    {item.title}
+                                </li>
+                            )
                         })
                     }
-                </ul> : null }
+                </ul> : null}
             </li>
         </>
     )
