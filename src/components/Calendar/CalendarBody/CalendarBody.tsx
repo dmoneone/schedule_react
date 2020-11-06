@@ -7,6 +7,7 @@ import { Popup } from '../../Popup/Popup';
 import { Cell } from './Cell/Cell';
 import { extendArray } from '../../../helpers/extendArray';
 import { Task } from '../Calendar';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 type Props = {
     selectedDate: Date;
@@ -52,11 +53,11 @@ export const CalendarBody: FC<Props> = props => {
 
     extendedArray[0][0].tasks.push(
         {
-            time: '10am - 12pm',
+            time: '10:00',
             title: 'yoyoyoyo'
         },
         {
-            time: '10',
+            time: '11:00',
             title: 'dmoneone'
         }
     )
@@ -96,7 +97,7 @@ export const CalendarBody: FC<Props> = props => {
     const renderCells = (schedule: {
         date: Date;
         tasks: Task[];
-    }[][]) => {
+    }[][], droppable: any) => {
         return schedule.map((array, i) => {
             return (
                 <ul key={i}>
@@ -110,6 +111,7 @@ export const CalendarBody: FC<Props> = props => {
                                     setPopup={setPopup}
                                     setCurrentCell={setCurrentCell}
                                     tasks={item.tasks}
+                                    droppable={droppable}
                                 >
                                 </Cell>
                             )
@@ -118,6 +120,10 @@ export const CalendarBody: FC<Props> = props => {
                 </ul>
             )
         })
+    }
+
+    const onDragEnd = (result: any) => {
+        console.log(result)
     }
 
     return (
@@ -138,15 +144,25 @@ export const CalendarBody: FC<Props> = props => {
                     }
                 </ul>
             </div>
+            <DragDropContext
+                onDragEnd={onDragEnd}
+            >
+                <Droppable droppableId="tasks">
+                    {
+                        (droppable) => (
+                            <div className={c.cells}>
+                                {
+                                    schedule && renderCells(schedule, droppable)
+                                }
+                                {
+                                    !schedule && renderCells(extendedArray, droppable)
+                                }
+                            </div>
+                        )
+                    }
+                </Droppable>
+            </DragDropContext>
 
-            <div className={c.cells}>
-                {
-                    schedule && renderCells(schedule)
-                }
-                {
-                    !schedule && renderCells(extendedArray)
-                }
-            </div>
         </div>
     )
 }
