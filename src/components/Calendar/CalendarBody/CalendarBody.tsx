@@ -17,15 +17,16 @@ type Props = {
 
 export type CurrentCell = Date | null
 
-type Schedule = {
+export type Schedule = {
     date: Date;
+    droppableId: string;
     tasks: Task[];
-}[][] | null
+}[][]
 
 export const CalendarBody: FC<Props> = props => {
     const [isPopupOpen, setPopup] = useState(false)
     const [currentCell, setCurrentCell] = useState<CurrentCell>(null)
-    const [schedule, setSchedule] = useState<Schedule>(null)
+    const [schedule, setSchedule] = useState<Schedule | null>(null)
 
     const dateFormat = "MMMM yyyy dddd";
 
@@ -51,6 +52,8 @@ export const CalendarBody: FC<Props> = props => {
     const splitedArray = splitArray<Date>(cells, 7)
     const extendedArray = extendArray(splitedArray)
 
+    console.log(extendedArray)
+
     extendedArray[0][0].tasks.push(
         {
             time: '10:00',
@@ -62,10 +65,7 @@ export const CalendarBody: FC<Props> = props => {
         }
     )
 
-    const findAndSetCell = (extendedArray: {
-        date: Date;
-        tasks: Task[];
-    }[][], date: Date, title: string, time: string) => {
+    const findAndSetCell = (extendedArray: Schedule, date: Date, title: string, time: string) => {
 
         let indexes = []
         for (let i = 0; i < extendedArray?.length; i++) {
@@ -94,24 +94,24 @@ export const CalendarBody: FC<Props> = props => {
         }
     }
 
-    const renderCells = (schedule: {
-        date: Date;
-        tasks: Task[];
-    }[][], droppable: any) => {
-        return schedule.map((array, i) => {
+    const renderCells = (schedule: Schedule) => {
+        const jsx = schedule.map((array, i) => {
             return (
                 <ul key={i}>
                     {
                         array.map((item, j) => {
+                            let dropableId = `events${item.date.toDateString()}`
                             return (
                                 <Cell
-                                    key={item.date.toISOString()}
+                                    key={item.date ? item.date.toISOString() : j}
                                     getClassDate={getClassDate}
                                     date={item.date}
                                     setPopup={setPopup}
                                     setCurrentCell={setCurrentCell}
                                     tasks={item.tasks}
-                                    droppable={droppable}
+                                    schedule={schedule}
+                                    setSchedule={setSchedule}
+                                    dropableId={dropableId}
                                 >
                                 </Cell>
                             )
@@ -120,11 +120,30 @@ export const CalendarBody: FC<Props> = props => {
                 </ul>
             )
         })
+
+        return jsx
     }
 
     const onDragEnd = (result: any) => {
+        if (!result.destination) return;
+
+        console.log(
+            'from ' + result.source.droppableId,
+            'to ' + result.destination.droppableId,
+            'fromIndex ' + result.source.index,
+            'toIndex ' + result.destination.index
+        )
+
+        const scheduleCopy = [...schedule as Schedule];
         console.log(result)
+
+        // draft[action.from] = draft[action.from] || [];
+        // draft[action.to] = draft[action.to] || [];
+        // const [removed] = draft[action.from].splice(action.fromIndex, 1);
+        // draft[action.to].splice(action.toIndex, 0, removed);
     }
+
+    console.log(schedule ? schedule : extendedArray, "schedule")
 
     return (
         <div className={c['calendar-body']}>
@@ -147,20 +166,16 @@ export const CalendarBody: FC<Props> = props => {
             <DragDropContext
                 onDragEnd={onDragEnd}
             >
-                <Droppable droppableId="tasks">
+
+                <div className={c.cells}>
                     {
-                        (droppable) => (
-                            <div className={c.cells}>
-                                {
-                                    schedule && renderCells(schedule, droppable)
-                                }
-                                {
-                                    !schedule && renderCells(extendedArray, droppable)
-                                }
-                            </div>
-                        )
+                        schedule && renderCells(schedule)
                     }
-                </Droppable>
+                    {
+                        !schedule && renderCells(extendedArray)
+                    }
+                </div>
+
             </DragDropContext>
 
         </div>

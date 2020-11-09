@@ -5,6 +5,7 @@ export function extendArray(array: Date[][]) {
         return array.map(date => {
             return {
                 date,
+                droppableId: '',
                 tasks: [] as Array<Task>
             }
         })
