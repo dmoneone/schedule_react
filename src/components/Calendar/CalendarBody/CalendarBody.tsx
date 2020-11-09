@@ -101,6 +101,7 @@ export const CalendarBody: FC<Props> = props => {
                     {
                         array.map((item, j) => {
                             let dropableId = `events${item.date.toDateString()}`
+                            item.droppableId = dropableId
                             return (
                                 <Cell
                                     key={item.date ? item.date.toISOString() : j}
@@ -141,7 +142,23 @@ export const CalendarBody: FC<Props> = props => {
         // draft[action.to] = draft[action.to] || [];
         // const [removed] = draft[action.from].splice(action.fromIndex, 1);
         // draft[action.to].splice(action.toIndex, 0, removed);
+        scheduleCopy.forEach((array, i) => {
+            array.find(item => {
+                let removed: any;
+                if(item.droppableId === result.source.droppableId) {
+                    [removed] = item.tasks.splice(result.source.index, 1)
+                } else if (item.droppableId === result.destination.droppableId) {
+                    if(removed) {
+                        item.tasks.splice(result.destination.index, 0, removed)
+                    }
+                }
+            })
+        })
+        console.log(scheduleCopy)
+        setSchedule(scheduleCopy)
     }
+
+    
 
     console.log(schedule ? schedule : extendedArray, "schedule")
 
