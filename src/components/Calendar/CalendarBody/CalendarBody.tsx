@@ -7,7 +7,7 @@ import { Popup } from '../../Popup/Popup';
 import { Cell } from './Cell/Cell';
 import { extendArray } from '../../../helpers/extendArray';
 import { Task } from '../Calendar';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 type Props = {
     selectedDate: Date;
@@ -51,8 +51,6 @@ export const CalendarBody: FC<Props> = props => {
     const cells: Array<Date> = eachDayOfInterval({ start: monthStart, end: monthEnd })
     const splitedArray = splitArray<Date>(cells, 7)
     const extendedArray = extendArray(splitedArray)
-
-    console.log(extendedArray)
 
     extendedArray[0][0].tasks.push(
         {
@@ -146,7 +144,7 @@ export const CalendarBody: FC<Props> = props => {
             'toIndex ' + result.destination.index
         )
 
-        const scheduleCopy = [...schedule as Schedule];
+        const scheduleCopy = [...schedule ? schedule : extendedArray as Schedule];
 
         const from = findDayByDroppableId(scheduleCopy, result.source.droppableId)
         const to = findDayByDroppableId(scheduleCopy, result.destination.droppableId)

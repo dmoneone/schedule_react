@@ -1,8 +1,7 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import c from './Popup.module.scss'
 import { CurrentCell } from '../Calendar/CalendarBody/CalendarBody';
-import { Task } from '../Calendar/Calendar';
-import { cleanup } from '@testing-library/react';
+import { useFormik } from 'formik';
 
 type Props = {
     currentCell: CurrentCell;
@@ -11,13 +10,33 @@ type Props = {
     findCellAndSetSchedule: (currentCell: any, newTask: string, time: string) => void;
 }
 
-export const Popup: FC<Props> = props => {
-    const [newTask, setNewTask] = useState('')
-    const [selectedTime, selectTime] = useState('10:00')
+type Partial<T> = {
+    [P in keyof T]?: T[P];
+};
 
-    const addTask = () => {
-        console.log(newTask, selectedTime)
-    }
+export const Popup: FC<Props> = props => {
+    const formik = useFormik({
+        initialValues: {
+            title: '',
+            time: '',
+        },
+        onSubmit: values => {
+            console.log(values)
+            props.findCellAndSetSchedule(props.currentCell, values.title, values.time)
+            props.setPopup(false)
+        },
+        validate: (values) => {
+            const errors: Partial<(typeof values)> = {};
+            if (!values.title) {
+                errors.title = 'Required';
+            } 
+
+            if (!values.time) {
+                errors.time = 'Required';
+            } 
+            return errors;
+        }
+    });
 
     return (
         <div className={c['popup-wrap']} onClick={e => {
@@ -29,22 +48,27 @@ export const Popup: FC<Props> = props => {
             }}>
                 <span>New Task!</span>
                 <span className={c.date}>{props.currentCell?.toDateString()}</span>
-                <input onChange={(e) => setNewTask(e.target.value)} />
-                <input type="time" id="appt" name="appt"
-                    min="09:00" max="18:00" required
-                    onChange={e => selectTime(e.target.value)}
-                ></input>
-                <div className={c["btn-panel"]}>
-                    <button onClick={() => {
-                        addTask()
-                        props.setPopup(false)
-                        props.findCellAndSetSchedule(props.currentCell, newTask, selectedTime)
-                    }}>add task</button>
-                    <button onClick={() => {
-                        props.setCurrentCell(null)
-                        props.setPopup(false)
-                    }}>cancel</button>
-                </div>
+                <form onSubmit={formik.handleSubmit}>
+                    <input
+                        onChange={formik.handleChange}
+                        value={formik.values.title}
+                        name='title'
+                    />
+                    { formik.errors.title && <span className={c.error}>required</span> }
+                    <input type="time"
+                        onChange={formik.handleChange}
+                        value={formik.values.time}
+                        name='time'
+                    ></input>
+                    { formik.errors.time ? <span className={c.error}>required</span> : null }
+                    <div className={c["btn-panel"]}>
+                        <button>add task</button>
+                        <button onClick={() => {
+                            props.setCurrentCell(null)
+                            props.setPopup(false)
+                        }}>cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     )

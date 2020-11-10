@@ -26,7 +26,7 @@
             display: block;
         }
 
-        span {
+        >span {
             font-size: 23px;
         }
 
@@ -64,4 +64,11 @@
             }
         }
     }
+}
+
+.error {
+    font-size: 14px;
+    color: rgb(221, 107, 107);
+    display: block;
+    margin: 5px;
 }
