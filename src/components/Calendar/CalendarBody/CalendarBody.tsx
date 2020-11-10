@@ -125,6 +125,17 @@ export const CalendarBody: FC<Props> = props => {
         return jsx
     }
 
+    const findDayByDroppableId = (schedule: Schedule, droppableId: string) => {
+        let result: any;
+        for(let i: number = 0; i< schedule.length; i++) {
+            result = schedule[i].find(item => item.droppableId === droppableId)
+            if (result) {
+                break
+            }
+        }
+        return result
+    }
+
     const onDragEnd = (result: any) => {
         if (!result.destination) return;
 
@@ -136,25 +147,12 @@ export const CalendarBody: FC<Props> = props => {
         )
 
         const scheduleCopy = [...schedule as Schedule];
-        console.log(result)
 
-        // draft[action.from] = draft[action.from] || [];
-        // draft[action.to] = draft[action.to] || [];
-        // const [removed] = draft[action.from].splice(action.fromIndex, 1);
-        // draft[action.to].splice(action.toIndex, 0, removed);
-        scheduleCopy.forEach((array, i) => {
-            array.find(item => {
-                let removed: any;
-                if(item.droppableId === result.source.droppableId) {
-                    [removed] = item.tasks.splice(result.source.index, 1)
-                } else if (item.droppableId === result.destination.droppableId) {
-                    if(removed) {
-                        item.tasks.splice(result.destination.index, 0, removed)
-                    }
-                }
-            })
-        })
-        console.log(scheduleCopy)
+        const from = findDayByDroppableId(scheduleCopy, result.source.droppableId)
+        const to = findDayByDroppableId(scheduleCopy, result.destination.droppableId)
+        const [removed] = from.tasks.splice(result.source.index, 1)
+        to.tasks.splice(result.destination.index, 0, removed)
+
         setSchedule(scheduleCopy)
     }
 
