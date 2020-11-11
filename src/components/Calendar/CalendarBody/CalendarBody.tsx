@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction, useState } from 'react'
+import React, { Dispatch, FC, SetStateAction, useState, useEffect } from 'react'
 import { startOfMonth, endOfMonth, eachDayOfInterval, format } from "date-fns";
 import c from '../Calendar.module.scss'
 import { splitArray } from '../../../helpers/splitArray';
@@ -6,29 +6,49 @@ import cn from 'classnames'
 import { Popup } from '../../Popup/Popup';
 import { Cell } from './Cell/Cell';
 import { extendArray } from '../../../helpers/extendArray';
-import { Task } from '../Calendar';
+import { Schedule, Task } from '../Calendar';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { consist } from '../../../helpers/consist';
 
 type Props = {
     selectedDate: Date;
     currentDate: Date;
     disableButton: Dispatch<SetStateAction<boolean>>;
+    schedule: Schedule | null;
+    setSchedule: Dispatch<SetStateAction<Schedule | null>>;
 }
 
 export type CurrentCell = Date | null
 
-export type Schedule = {
-    date: Date;
-    droppableId: string;
-    tasks: Task[];
-}[][]
-
 export const CalendarBody: FC<Props> = props => {
     const [isPopupOpen, setPopup] = useState(false)
     const [currentCell, setCurrentCell] = useState<CurrentCell>(null)
-    const [schedule, setSchedule] = useState<Schedule | null>(null)
+
+    useEffect(() => {
+        const monthStart = startOfMonth(props.selectedDate)
+        const monthEnd = endOfMonth(props.selectedDate)
+
+        const cells: Array<Date> = eachDayOfInterval({ start: monthStart, end: monthEnd })
+        const splitedArray = splitArray<Date>(cells, 7)
+        const extendedArray = extendArray(splitedArray)
+
+        findCellAndSetSchedule(extendedArray, new Date('November 1, 2020'), 'November', '10:00')
+        findCellAndSetSchedule(extendedArray, new Date('December 3, 2020'), 'December', '10:00')
+
+        props.setSchedule(extendedArray)
+    }, [props.selectedDate])
+
+    // useEffect(() => {
+    //     console.log(props.schedule, '___')
+    //     if (props.schedule) {
+    //         findCellAndSetSchedule(new Date('November 1, 2020'), 'Fake', '10:00')
+    //         findCellAndSetSchedule(new Date('December 31, 2020'), 'Fake 2', '10:00')
+    //     }
+    // }, [props.schedule, props.selectedDate])
+
 
     const dateFormat = "MMMM yyyy dddd";
+    const days: string[] = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
     const getClassDate = (date: Date) => {
         let isToday = false
@@ -43,31 +63,10 @@ export const CalendarBody: FC<Props> = props => {
         })
     }
 
-
-    const monthStart = startOfMonth(props.selectedDate)
-    const monthEnd = endOfMonth(props.selectedDate)
-
-    const days: string[] = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-    const cells: Array<Date> = eachDayOfInterval({ start: monthStart, end: monthEnd })
-    const splitedArray = splitArray<Date>(cells, 7)
-    const extendedArray = extendArray(splitedArray)
-
-    extendedArray[0][0].tasks.push(
-        {
-            time: '10:00',
-            title: 'yoyoyoyo'
-        },
-        {
-            time: '11:00',
-            title: 'dmoneone'
-        }
-    )
-
-    const findAndSetCell = (extendedArray: Schedule, date: Date, title: string, time: string) => {
-
+    const findAndSetCell = (schedule: Schedule, date: Date, title: string, time: string) => {
         let indexes = []
-        for (let i = 0; i < extendedArray?.length; i++) {
-            let ind = extendedArray[i].findIndex(item => {
+        for (let i = 0; i < schedule?.length; i++) {
+            let ind = schedule[i].findIndex(item => {
                 return format(item.date, dateFormat) === format(date, dateFormat)
             })
             if (ind !== -1) {
@@ -76,23 +75,22 @@ export const CalendarBody: FC<Props> = props => {
             }
         }
 
-        extendedArray && extendedArray[indexes[0]][indexes[1]].tasks.push({
+        schedule[indexes[0]][indexes[1]].tasks.push({
             time,
             title,
         })
 
-        setSchedule(extendedArray)
+        props.setSchedule(schedule)
     }
 
-    const findCellAndSetSchedule = (date: Date, title: string, time: string) => {
-        if (!schedule) {
-            findAndSetCell(extendedArray, date, title, time)
-        } else {
-            findAndSetCell(schedule, date, title, time)
-        }
+    const findCellAndSetSchedule = (shedule: Schedule, date: Date, title: string, time: string) => {
+        let sheduleCopy = [...shedule]
+        if (!consist(sheduleCopy, date, dateFormat)) return console.error('This month does not consist the' + ' ' + date.toDateString())
+        findAndSetCell(sheduleCopy, date, title, time)
     }
 
     const renderCells = (schedule: Schedule) => {
+        // if(!consist(_schedule, date)) return console.error('This month does not consist the' + ' ' + date.toDateString())
         const jsx = schedule.map((array, i) => {
             return (
                 <ul key={i}>
@@ -109,7 +107,7 @@ export const CalendarBody: FC<Props> = props => {
                                     setCurrentCell={setCurrentCell}
                                     tasks={item.tasks}
                                     schedule={schedule}
-                                    setSchedule={setSchedule}
+                                    setSchedule={props.setSchedule}
                                     dropableId={dropableId}
                                 >
                                 </Cell>
@@ -125,7 +123,7 @@ export const CalendarBody: FC<Props> = props => {
 
     const findDayByDroppableId = (schedule: Schedule, droppableId: string) => {
         let result: any;
-        for(let i: number = 0; i< schedule.length; i++) {
+        for (let i: number = 0; i < schedule.length; i++) {
             result = schedule[i].find(item => item.droppableId === droppableId)
             if (result) {
                 break
@@ -144,19 +142,19 @@ export const CalendarBody: FC<Props> = props => {
             'toIndex ' + result.destination.index
         )
 
-        const scheduleCopy = [...schedule ? schedule : extendedArray as Schedule];
+        const scheduleCopy = [...props.schedule as Schedule];
 
         const from = findDayByDroppableId(scheduleCopy, result.source.droppableId)
         const to = findDayByDroppableId(scheduleCopy, result.destination.droppableId)
         const [removed] = from.tasks.splice(result.source.index, 1)
         to.tasks.splice(result.destination.index, 0, removed)
 
-        setSchedule(scheduleCopy)
+        props.setSchedule(scheduleCopy)
     }
 
-    
 
-    console.log(schedule ? schedule : extendedArray, "schedule")
+
+    console.log(props.schedule, "schedule")
 
     return (
         <div className={c['calendar-body']}>
@@ -164,6 +162,7 @@ export const CalendarBody: FC<Props> = props => {
                 setCurrentCell={setCurrentCell}
                 currentCell={currentCell}
                 setPopup={setPopup}
+                schedule={props.schedule}
                 findCellAndSetSchedule={findCellAndSetSchedule}
 
             />}
@@ -179,13 +178,9 @@ export const CalendarBody: FC<Props> = props => {
             <DragDropContext
                 onDragEnd={onDragEnd}
             >
-
                 <div className={c.cells}>
                     {
-                        schedule && renderCells(schedule)
-                    }
-                    {
-                        !schedule && renderCells(extendedArray)
+                        props.schedule && renderCells(props.schedule)
                     }
                 </div>
 

@@ -2,8 +2,8 @@ import { format } from 'date-fns'
 import React, { Dispatch, FC, SetStateAction, useState } from 'react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import c from '../../../Calendar/Calendar.module.scss'
-import { Task } from '../../Calendar'
-import { CurrentCell, Schedule } from '../CalendarBody';
+import { Schedule, Task } from '../../Calendar'
+import { CurrentCell } from '../CalendarBody';
 import { Event } from './Event/Event'
 
 type Props = {

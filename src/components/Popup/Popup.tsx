@@ -2,12 +2,14 @@ import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import c from './Popup.module.scss'
 import { CurrentCell } from '../Calendar/CalendarBody/CalendarBody';
 import { useFormik } from 'formik';
+import { Schedule } from '../Calendar/Calendar';
 
 type Props = {
     currentCell: CurrentCell;
     setCurrentCell: Dispatch<SetStateAction<CurrentCell>>;
     setPopup: Dispatch<SetStateAction<boolean>>;
-    findCellAndSetSchedule: (currentCell: any, newTask: string, time: string) => void;
+    findCellAndSetSchedule: (shedule: Schedule, currentCell: any, newTask: string, time: string) => void;
+    schedule: Schedule | null;
 }
 
 type Partial<T> = {
@@ -22,7 +24,7 @@ export const Popup: FC<Props> = props => {
         },
         onSubmit: values => {
             console.log(values)
-            props.findCellAndSetSchedule(props.currentCell, values.title, values.time)
+            props.findCellAndSetSchedule(props.schedule as Schedule, props.currentCell, values.title, values.time)
             props.setPopup(false)
         },
         validate: (values) => {
