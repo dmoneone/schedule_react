@@ -1,4 +1,5 @@
-import React, { FC, useState } from 'react'
+import { format } from 'date-fns'
+import React, { FC, useEffect, useState } from 'react'
 import c from './Calendar.module.scss'
 import { CalendarBody } from './CalendarBody/CalendarBody'
 import { CalendarHeader } from './CalendarHeader/CalendarHeader'
@@ -20,6 +21,14 @@ export const Calendar: FC<any> = props => {
     const [selectedDate, selectDate] = useState(new Date())
     const [isButtonDisabled, disableButton] = useState(false)
     const [schedule, setSchedule] = useState<Schedule | null>(null)
+
+    useEffect(() => {
+        uploadMonthSchedule()
+    }, [schedule])
+
+    const uploadMonthSchedule = () => {
+        console.info(schedule, `${ format(selectedDate, "MMMM yyyy") } - is ready to be uploaded`)
+    }
 
     return (
         <div className={c.calendar}>

@@ -32,20 +32,24 @@ export const CalendarBody: FC<Props> = props => {
         const splitedArray = splitArray<Date>(cells, 7)
         const extendedArray = extendArray(splitedArray)
 
-        findCellAndSetSchedule(extendedArray, new Date('November 1, 2020'), 'November', '10:00')
-        findCellAndSetSchedule(extendedArray, new Date('December 3, 2020'), 'December', '10:00')
+        // findCellAndSetSchedule(extendedArray, new Date('November 1, 2020'), 'November', '10:00')
+        // findCellAndSetSchedule(extendedArray, new Date('December 3, 2020'), 'December', '10:00')
+
+        let tasks = localStorage.getItem('tasks')
+        if (tasks) {
+            JSON.parse(tasks).forEach((task: any) => {
+                if (props.schedule) {
+                    if (!consist(props.schedule, new Date(task.date), dateFormat)) {
+                        findCellAndSetSchedule(extendedArray, new Date(task.date), task.title, task.time)
+                    }
+                } else {
+                    findCellAndSetSchedule(extendedArray, new Date(task.date), task.title, task.time)
+                }
+            })
+        }
 
         props.setSchedule(extendedArray)
     }, [props.selectedDate])
-
-    // useEffect(() => {
-    //     console.log(props.schedule, '___')
-    //     if (props.schedule) {
-    //         findCellAndSetSchedule(new Date('November 1, 2020'), 'Fake', '10:00')
-    //         findCellAndSetSchedule(new Date('December 31, 2020'), 'Fake 2', '10:00')
-    //     }
-    // }, [props.schedule, props.selectedDate])
-
 
     const dateFormat = "MMMM yyyy dddd";
     const days: string[] = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
@@ -75,22 +79,36 @@ export const CalendarBody: FC<Props> = props => {
             }
         }
 
-        schedule[indexes[0]][indexes[1]].tasks.push({
+        const task: Task = {
             time,
-            title,
-        })
+            title
+        }
 
+        const LStasks = localStorage.getItem('tasks')
+        if (LStasks && JSON.stringify(LStasks?.length)) {
+            let LCtask = { date, ...task }
+            if (!(JSON.parse(LStasks).filter((e: any) => format(new Date(e.date), dateFormat) === format(new Date(LCtask.date), dateFormat)).length > 0)) {
+                localStorage.setItem('tasks', JSON.stringify(
+                    [...JSON.parse(LStasks), LCtask]
+                ))
+            }
+        } else {
+            localStorage.setItem('tasks', JSON.stringify(
+                [{ date, ...task}]
+            ))
+        }
+
+        schedule[indexes[0]][indexes[1]].tasks.push(task)
         props.setSchedule(schedule)
     }
 
     const findCellAndSetSchedule = (shedule: Schedule, date: Date, title: string, time: string) => {
         let sheduleCopy = [...shedule]
-        if (!consist(sheduleCopy, date, dateFormat)) return console.error('This month does not consist the' + ' ' + date.toDateString())
+        if (!consist(sheduleCopy, date, dateFormat)) return console.warn('This month does not consist the' + ' ' + date.toDateString())
         findAndSetCell(sheduleCopy, date, title, time)
     }
 
     const renderCells = (schedule: Schedule) => {
-        // if(!consist(_schedule, date)) return console.error('This month does not consist the' + ' ' + date.toDateString())
         const jsx = schedule.map((array, i) => {
             return (
                 <ul key={i}>
@@ -151,10 +169,6 @@ export const CalendarBody: FC<Props> = props => {
 
         props.setSchedule(scheduleCopy)
     }
-
-
-
-    console.log(props.schedule, "schedule")
 
     return (
         <div className={c['calendar-body']}>
