@@ -152,22 +152,19 @@ export const CalendarBody: FC<Props> = props => {
 
     const onDragEnd = (result: any) => {
         if (!result.destination) return;
-
-        console.log(
-            'from ' + result.source.droppableId,
-            'to ' + result.destination.droppableId,
-            'fromIndex ' + result.source.index,
-            'toIndex ' + result.destination.index
-        )
-
         const scheduleCopy = [...props.schedule as Schedule];
 
         const from = findDayByDroppableId(scheduleCopy, result.source.droppableId)
         const to = findDayByDroppableId(scheduleCopy, result.destination.droppableId)
         const [removed] = from.tasks.splice(result.source.index, 1)
         to.tasks.splice(result.destination.index, 0, removed)
-
+ 
         props.setSchedule(scheduleCopy)
+
+        // const LStasks = localStorage.getItem('tasks')
+        // if(LStasks && JSON.parse(LStasks).length) {
+
+        // }
     }
 
     return (

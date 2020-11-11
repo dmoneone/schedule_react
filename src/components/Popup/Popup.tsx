@@ -23,7 +23,6 @@ export const Popup: FC<Props> = props => {
             time: '',
         },
         onSubmit: values => {
-            console.log(values)
             props.findCellAndSetSchedule(props.schedule as Schedule, props.currentCell, values.title, values.time)
             props.setPopup(false)
         },
